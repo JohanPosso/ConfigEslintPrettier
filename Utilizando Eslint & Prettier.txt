@@ -1,0 +1,139 @@
+-Instalar la extension
+-Instalar Eslint
+-Configurar Eslint
+
+npm i eslint --save-dev -> Para guardar solo en el proyecto y no global
+npx eslint --init -> Paara poder ver los errores en el codigo 
+Luego seleccionamos -> To check syntax, find problems, and enforce code style
+Para Node.js seleccionamos -> CommonJS (require/exports)
+Luego nos pregunta si estamos usando algun framework, sino seleccionamos -> None of these
+Pregunta si usamos TypeScript, si no lo estamos usando seleccionamos -> No
+Nos pregunta si nuestro codigo corre en el navegador o en node, si en Node.js seleccionamos -> Node
+Nos pregunta si queremos seguir un estilo para nuestro proyecto, seleccionamos -> Use a popular style guide
+seleccionamos la guia -> Airbnb: https://github.com/airbnb/javascript
+Nos pregunta que tipo de formato para la configuracion elegimos -> JSON
+Por ultimo nos pide instalar unas dependencias adicionales y seleccionamos -> Yes
+
+Vamos al package.jso y en la seccion de scripts, creamos una para eslint
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "lint":"eslint index.js" -> Nos reporta errores encontrados, le indicamos en que carpeta queremos que corra 
+  }
+
+*********  Configurar reglas de Eslint ************
+-Si queremos omitir alguna regla o cambiarla por ejemplo que se pueda usar comillas dobles ""
+Vamos al archivo eslintrc.json a rules y ponemos la propiedad y valor off, nos quita el error de comillas dobles
+"rules": {
+    "quotes":"off" -> Para quitar el error
+    "quotes":"warn" -> Para ponerla como advertencia
+    }
+Para forzar un cambio se hace de la siguiente manera:
+"rules": {
+    "quotes":["warn", "double"] -> Para forzar a usar comillas doble y lo demas sea una advertencia
+    }
+
+Podemos quitar errores directamente desde el codigo asi:
+
+app.listen(port, () => {
+  /* eslint no-console: "off" */ -> De esta manera se quita el error en todo el documento
+  console.log(`Server Running in port ${port}`);
+});
+
+Si deseo deshabilitar solo el console.log que esta en una linea especifica lo hago asi:
+app.listen(port, () => {
+  /* eslint-disable-next-line no-console */ -> De esta manera se quita el error en todo el documento
+  console.log(`Server Running in port ${port}`);
+});
+
+*************Arreglando Errores****************
+
+Hay 3 maneras de arreglar los errores:
+
+- Prevencion
+- Manualmente
+- En masa
+
+Para arreglar los errores automaticamente vamos al package.json y en la seccion de scripts agregamos lint-fix
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "lint":"eslint index.js",
+    "lint-fix":"eslint index.js --fix"
+  }
+
+  *****************Instalando PRETTIER****************
+
+  Instalar la extension Prettier - Code formatter en VSCODE
+  Para habilitarlo como formateador de codigo vamos a la documentacion de la extencion hasta encontrar un JSON
+  Presionamo Ctrl + Shift + p y en la venta que se nos abre escribimos settings o abrir configuracion JSON y pegamos:
+  {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
+
+Al final la configuracion de prettier queda de esta manera:
+
+{
+  "editor.formatOnSave": true, //Le indico que siempre que guarde lo formatee
+  "prettier.requireConfig": true, //Solo formatee codigo al guardar si tiene el archivo de configuracion de prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode" //Para utilizarlo de manera global
+}
+
+Vamos al proyecto y creamos un archivo .prettierrc.json
+
+En el archivo .prettierrc.json, basta con abri llaves:
+{
+
+}
+Para que tome las configuraciones de prettier, y luego si tenemos un punto y coma sin poner y le damos guardar prettier nos lo pone
+
+Las comillas simple se reemplazan por comillas dobles, esto nos da error por parte de Eslint, para corregirlo lanzamos el comando: npm run lint-fix
+
+************** Configurar Eslint y Prettier para que trabajen de la mano sin errores ****************
+
+Debemos deshabilitar todas las reglas que hacen conflicto con prettier, para no hacerlo manual de uno en uno
+Usamos un paquete llamado npm  install -D eslint-config-prettier -> Para instalar como dependencia de desarrollo
+Vamos al archivo eslintrc.json y agregamos "prettier" queda de esta manera:
+"extends": ["airbnb-base", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  }
+
+Vamos al archivo .prettierrc.json y añadimos las reglas para que el ; se obligatorio, se usen comillas simples
+{
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "trailingComma": "all" //Agrega una coma al final de un objeto
+}
+
+********Para mostrar los errores de Eslint y correr prettier por debajo usamos un plugin***********
+
+Lo instalamos como dependencia de desarrollo
+npm install -D eslint-plugin-prettier prettier -> Tambien instalamos prettier
+En el archivo eslintrc.json debajo de extends creamos plugin de esta manera:
+
+ },
+  "extends": ["airbnb-base", "prettier"],
+  "plugins":["prettier"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  }
+Luego usamos nuevas reglas basada en la configuracion de prettier
+
+  "extends": ["airbnb-base", "prettier", "plugin:prettier/recommended"],
+  "plugins": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  }
+
+Y usamos la regla "prettier/prettier":"error" quedando asi:
+
+},
+  "rules": {
+    "prettier/prettier": "error"
+  }
